@@ -1,70 +1,26 @@
-# Getting Started with Create React App
+# Langchain 问答 Demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 简介
 
-## Available Scripts
+这是一个包含前端建议界面及后端服务脚本的 Langchain 文档会话问答的 Demo，并对提示模板进行了简单的自定义，可以根据用户提出的问题，在给定的文档上下文中进行回答。本脚本使用了多个第三方库，包括 Langchain、OpenAI 等。
 
-In the project directory, you can run:
+## 安装
 
-### `npm start`
+1. 首先，请确保您已经安装了 Node.js 运行环境。
+2. 在终端中进入脚本所在的目录。
+3. 运行`npm install`命令安装所需的依赖包。
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 使用
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. 在终端中执行`export OPENAI_API_KEY="sk-..."`。
+2. 运行`node server.js`命令启动脚本。
+3. 在浏览器中访问`http://localhost:3002/ask?question=YOUR_QUESTION`，其中`YOUR_QUESTION`为您要提出的问题。
+4. 您也可以在当前目录下执行`yarn start`或`npm run start`来启动前端页面进行访问。
+5. 脚本将返回一个 JSON 格式的结果，其中`answer`字段为回答的内容。
 
-### `npm test`
+## 注意事项
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. 在运行脚本之前，请确保您已经获得了 OpenAI API Key，否则脚本将无法正常运行。
+2. 请确保您的控制台网络环境能够访问`api.openai.com`。
+3. 将您想要使用的文档更名为`book.text`，放置到`server.js`的同级目录中。
+4. 确保您的 Node 版本高于等于 18。

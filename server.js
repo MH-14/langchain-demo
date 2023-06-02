@@ -12,27 +12,16 @@ const { PDFLoader } = require("langchain/document_loaders/fs/pdf");
 const { TextLoader } = require("langchain/document_loaders/fs/text");
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
 const { CharacterTextSplitter } = require("langchain/text_splitter");
-const {
-  SystemChatMessage,
-  AIChatMessage,
-  HumanChatMessage,
-} = require("langchain/schema");
 const { ConversationalRetrievalQAChain } = require("langchain/chains");
-const { BufferMemory, ChatMessageHistory } = require("langchain/memory");
-const {
-  RetrievalQAChain,
-  loadQAStuffChain,
-  loadQAMapReduceChain,
-  loadQARefineChain,
-} = require("langchain/chains");
+const { BufferMemory } = require("langchain/memory");
 
 (async () => {
   const embeddings = new OpenAIEmbeddings();
-  // const loader = new PDFLoader("./book.pdf");
-  const loader = new TextLoader("./book.text");
+  const loader = new PDFLoader("./book.pdf");
+  // const loader = new TextLoader("./book.text");
   const splitter = new CharacterTextSplitter({
-    chunkSize: 2000,
-    chunkOverlap: 200,
+    chunkSize: 100,
+    chunkOverlap: 50,
   });
 
   const model = new OpenAI({
@@ -47,45 +36,35 @@ const {
     baseCompressor,
     baseRetriever: vectorStore.asRetriever(),
   });
-  const systemMessage = new SystemChatMessage(
-    "你是一个文档回答助手, 接下来你将用中文回答用户的问题, 你将按照文档内容进行回答, 对文档以外的内容请进行回避."
-  );
-  const humanMessage = new HumanChatMessage("你叫什么名字");
-  const aiMessage2 = new AIChatMessage(
-    "对不起, 这个问题不在文档中, 我不能进行回答."
-  );
+
   const memory = new BufferMemory({
     memoryKey: "chat_history", // Must be set to "chat_history"
-    chatHistory: new ChatMessageHistory([
-      systemMessage,
-      humanMessage,
-      aiMessage2,
-    ]),
     outputKey: "text",
     returnMessages: true,
   });
 
-  // const chain = new RetrievalQAChain({
-  //   combineDocumentsChain: loadQAStuffChain(model),
-  //   retriever,
-  //   memory: new BufferMemory({
-  //     returnMessages: true,
-  //     memoryKey: "history",
-  //     chatHistory: new ChatMessageHistory([systemMessage, aiMessage]),
-  //   }),
-  // });
-
   const chain = ConversationalRetrievalQAChain.fromLLM(model, retriever, {
     returnSourceDocuments: true,
-    memory,
-  });
+    inputKey: "query",
+    qaTemplate: `
+    你是一个文档问答助手, 我将给你上下文和问题, 我希望你根据上下文进行回答, 当上下文后面紧跟'问题'时, 说明条件不够充分, 你需要拒绝回答, 这意味着你所有的答案都必须依据上下文给出, 你的答案不能够超出上下文的范围, 不要试图编造答案.
+    如果你没有一个有用的答案, 请委婉的告知你不知道这个问题的答案, 可以尝试其他问题.
 
-  // const chain = loadQARefineChain(model, {
-  //   memory: new BufferMemory({
-  //     memoryKey: "chat_history", // Must be set to "chat_history"
-  //     chatHistory: new ChatMessageHistory([systemMessage, aiMessage]),
-  //   }),
-  // });
+    上下文: {context}
+    
+    问题：{question}
+    
+    有用的答案：`,
+
+    memory,
+    questionGeneratorTemplate: `给定以下对话和后续问题，请重新表述后续问题，使其成为一个独立的问题。
+    !请注意人称代词的替换, 不要使人称指代的目标发生偏移.
+
+    聊天记录：
+    {chat_history}
+    后续问题：{question}
+    独立问题：`,
+  });
 
   const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
@@ -103,7 +82,7 @@ const {
 
     const question = parsedUrl.query.question;
     const answer = await chain.call({
-      question,
+      query: question,
     });
 
     res.setHeader("Access-Control-Allow-Origin", "*");
